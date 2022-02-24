@@ -1,4 +1,3 @@
-import { render } from "@testing-library/react";
 import React from "react";
 import MessageForm from "./MessageForm";
 import MyMessage from "./MyMessage";
@@ -9,6 +8,22 @@ const ChatFeed = (props) => {
 
   const chat = chats && chats[activeChat];
 
+  const renderReadReceipts = (message, isMyMessage) =>
+    chat.people.map(
+      (person, index) =>
+        person.last_read === message.id && (
+          <div
+            key={`read_${index}`}
+            className="read-receipt"
+            style={{
+              float: isMyMessage ? "right" : "left",
+              backgroundImage:
+                person.person.avatar && `url(${person.person.avatar})`,
+            }}
+          />
+        )
+    );
+
   const renderMessages = () => {
     const keys = Object.keys(messages);
 
@@ -18,7 +33,7 @@ const ChatFeed = (props) => {
       const isMyMessage = userName === message.sender.username;
 
       return (
-        <div key={`msg_${index}`} className="w-full">
+        <div key={`msg_${index}`} style={{ width: "100%" }}>
           <div className="message-block">
             {isMyMessage ? (
               <MyMessage message={message} />
@@ -36,14 +51,14 @@ const ChatFeed = (props) => {
               marginLeft: isMyMessage ? "0px" : "68px",
             }}
           >
-            read-receipts
+            {renderReadReceipts(message, isMyMessage)}
           </div>
         </div>
       );
     });
   };
 
-  if (!chat) return "Loading...";
+  if (!chat) return <div />;
 
   return (
     <div className="chat-feed">
@@ -54,7 +69,7 @@ const ChatFeed = (props) => {
         </div>
       </div>
       {renderMessages()}
-      <div className="h-[100px]" />
+      <div style={{ height: "100px" }} />
       <div className="message-form-container">
         <MessageForm {...props} chatId={activeChat} />
       </div>
